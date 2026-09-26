@@ -59,7 +59,7 @@ async def seed_admin():
     from datetime import datetime, timezone
     import uuid
     admin_email = os.environ.get("ADMIN_EMAIL", "admin@bekon.studio").lower()
-    admin_password = os.environ.get("ADMIN_PASSWORD", "Bekon2026!Studio")
+    admin_password = os.environ.get("ADMIN_PASSWORD", "Bekon@2026")
     existing = await db.users.find_one({"email": admin_email})
     if existing is None:
         await db.users.insert_one({
