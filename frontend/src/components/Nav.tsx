@@ -36,9 +36,11 @@ export function Nav() {
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 md:h-20 md:px-8">
         <Link to="/" className="group flex items-center gap-2" data-testid="nav-logo" aria-label="BEKON — Accueil">
-          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-electric text-white transition-transform duration-300 group-hover:rotate-12">
-            <Zap className="h-4 w-4" strokeWidth={2.5} />
-          </span>
+                    <img
+            src="/logo_bekon.png"
+            alt="BEKON"
+            className="h-9 w-9 object-contain transition-transform duration-300 group-hover:rotate-12"
+          />
           <span className="font-heading text-xl font-bold tracking-tight">BEKON</span>
         </Link>
 
