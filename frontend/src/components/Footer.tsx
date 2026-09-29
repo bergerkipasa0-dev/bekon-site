@@ -26,9 +26,11 @@ export function Footer() {
         <div className="grid gap-12 md:grid-cols-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-md bg-electric text-white">
-                <Zap className="h-4 w-4" strokeWidth={2.5} />
-              </span>
+                            <img
+                src="/logo_bekon.png"
+                alt="BEKON"
+                className="h-9 w-9 object-contain"
+              />
               <span className="font-heading text-xl font-bold">BEKON</span>
             </div>
             <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{t.footer.tagline}</p>
