@@ -1,4 +1,3 @@
-import asyncio
 import uuid
 from datetime import datetime, timezone
 
@@ -25,7 +24,7 @@ async def store_file(file: UploadFile, folder: str, kind: str, allowed: set[str]
         raise HTTPException(status_code=400, detail="Fichier trop volumineux (25 Mo max)")
     content_type = file.content_type or MIME_TYPES.get(ext, "application/octet-stream")
     path = f"{APP_NAME}/{folder}/{uuid.uuid4()}.{ext}"
-    result = await asyncio.to_thread(put_object, path, data, content_type)
+    result = await put_object(path, data, content_type)
     record = {
         "id": str(uuid.uuid4()),
         "storage_path": result["path"],
@@ -59,5 +58,8 @@ async def download_file(path: str, request: Request, auth: str | None = Query(No
             decode_token(token)
         except jwt.InvalidTokenError:
             raise HTTPException(status_code=401, detail="Invalid token")
-    data, content_type = await asyncio.to_thread(get_object, path)
+    try:
+        data, content_type = await get_object(path)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Fichier introuvable")
     return Response(content=data, media_type=record.get("content_type", content_type))
