@@ -5,6 +5,7 @@ import { LanguageProvider } from "@/lib/i18n";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import Layout from "@/components/Layout";
 import Home from "@/pages/Home";
+import Privacy from "@/pages/Privacy";
 import Services from "@/pages/Services";
 import Portfolio from "@/pages/Portfolio";
 import ProjectDetail from "@/pages/ProjectDetail";
