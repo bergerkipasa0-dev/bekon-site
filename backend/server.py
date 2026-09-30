@@ -14,7 +14,6 @@ from starlette.middleware.cors import CORSMiddleware
 
 from lib.db import client, db, ensure_indexes
 from lib.auth import hash_password, verify_password
-from lib.storage import init_storage
 from routers import auth as auth_router
 from routers import content as content_router
 from routers import files as files_router
@@ -92,11 +91,6 @@ async def lifespan(app: FastAPI):
     await db.login_attempts.create_index("identifier")
     await seed_admin()
     await seed_services()
-    try:
-        await asyncio.to_thread(init_storage)
-        logger.info("Object storage initialized")
-    except Exception as e:
-        logger.error(f"Storage init failed: {e}")
     yield
     client.close()
 
