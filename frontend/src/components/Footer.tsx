@@ -74,9 +74,14 @@ export function Footer() {
         </div>
         <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-edge pt-8 md:flex-row">
           <p className="text-xs text-muted-foreground">{t.footer.rights}</p>
-          <Link to="/admin/login" className="text-xs text-muted-foreground transition-colors hover:text-electric" data-testid="footer-admin-link">
-            {t.footer.admin}
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link to="/politique-de-confidentialite" className="text-xs text-muted-foreground transition-colors hover:text-electric">
+              Politique de confidentialité
+            </Link>
+            <Link to="/admin/login" className="text-xs text-muted-foreground transition-colors hover:text-electric" data-testid="footer-admin-link">
+              {t.footer.admin}
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
