@@ -5,13 +5,13 @@ import { LanguageProvider } from "@/lib/i18n";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import Layout from "@/components/Layout";
 import Home from "@/pages/Home";
-import Privacy from "@/pages/Privacy";
 import Services from "@/pages/Services";
 import Portfolio from "@/pages/Portfolio";
 import ProjectDetail from "@/pages/ProjectDetail";
 import About from "@/pages/About";
 import Quote from "@/pages/Quote";
 import Contact from "@/pages/Contact";
+import Privacy from "@/pages/Privacy";
 import AdminLogin from "@/pages/admin/Login";
 import AdminLayout from "@/pages/admin/AdminLayout";
 import Dashboard from "@/pages/admin/Dashboard";
@@ -42,6 +42,7 @@ export default function App() {
             <Route path="/a-propos" element={<About />} />
             <Route path="/devis" element={<Quote />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/politique-de-confidentialite" element={<Privacy />} />
           </Route>
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminLayout />}>
