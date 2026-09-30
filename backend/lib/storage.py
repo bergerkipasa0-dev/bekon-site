@@ -1,60 +1,12 @@
 import logging
-import os
 
-import requests
+from motor.motor_asyncio import AsyncIOMotorGridFSBucket
+
+from lib.db import db
 
 logger = logging.getLogger(__name__)
 
-STORAGE_BASE = (os.environ.get("INTEGRATION_PROXY_URL") or "").strip() or "https://integrations.emergentagent.com"
-STORAGE_URL = STORAGE_BASE.rstrip("/") + "/objstore/api/v1/storage"
 APP_NAME = "bekon"
-
-storage_key = None
-
-
-def init_storage(force: bool = False):
-    global storage_key
-    if storage_key and not force:
-        return storage_key
-    resp = requests.post(
-        f"{STORAGE_URL}/init",
-        json={"emergent_key": os.environ.get("EMERGENT_LLM_KEY")},
-        timeout=30,
-    )
-    resp.raise_for_status()
-    storage_key = resp.json()["storage_key"]
-    return storage_key
-
-
-def put_object(path: str, data: bytes, content_type: str) -> dict:
-    key = init_storage()
-    resp = requests.put(
-        f"{STORAGE_URL}/objects/{path}",
-        headers={"X-Storage-Key": key, "Content-Type": content_type},
-        data=data,
-        timeout=120,
-    )
-    if resp.status_code == 404:
-        init_storage(force=True)
-        resp = requests.put(
-            f"{STORAGE_URL}/objects/{path}",
-            headers={"X-Storage-Key": storage_key, "Content-Type": content_type},
-            data=data,
-            timeout=120,
-        )
-    resp.raise_for_status()
-    return resp.json()
-
-
-def get_object(path: str) -> tuple[bytes, str]:
-    key = init_storage()
-    resp = requests.get(f"{STORAGE_URL}/objects/{path}", headers={"X-Storage-Key": key}, timeout=60)
-    if resp.status_code == 404:
-        init_storage(force=True)
-        resp = requests.get(f"{STORAGE_URL}/objects/{path}", headers={"X-Storage-Key": storage_key}, timeout=60)
-    resp.raise_for_status()
-    return resp.content, resp.headers.get("Content-Type", "application/octet-stream")
-
 
 MIME_TYPES = {
     "jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png",
@@ -62,3 +14,31 @@ MIME_TYPES = {
     "pdf": "application/pdf", "ai": "application/postscript",
     "psd": "image/vnd.adobe.photoshop", "zip": "application/zip",
 }
+
+_bucket = None
+
+
+def get_bucket() -> AsyncIOMotorGridFSBucket:
+    global _bucket
+    if _bucket is None:
+        _bucket = AsyncIOMotorGridFSBucket(db)
+    return _bucket
+
+
+async def put_object(path: str, data: bytes, content_type: str) -> dict:
+    bucket = get_bucket()
+    await bucket.upload_from_stream(path, data, metadata={"content_type": content_type})
+    return {"path": path, "size": len(data)}
+
+
+async def get_object(path: str) -> tuple[bytes, str]:
+    bucket = get_bucket()
+    cursor = bucket.find({"filename": path}).sort("uploadDate", -1).limit(1)
+    docs = await cursor.to_list(length=1)
+    if not docs:
+        raise FileNotFoundError(path)
+    file_id = docs[0]["_id"]
+    stream = await bucket.open_download_stream(file_id)
+    data = await stream.read()
+    content_type = (docs[0].get("metadata") or {}).get("content_type", "application/octet-stream")
+    return data, content_type
